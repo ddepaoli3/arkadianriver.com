@@ -104,8 +104,8 @@ permalink: /:categories/:title.html
 markdown: kramdown
 #sass:
 #  style: compressed
-exclude: ['site.bat','compose.rb','README.md']
-include: ['_pages','.htaccess']
+exclude: ['site.bat','compose.rb','README.md', cloudformation]
+include: ['_pages','.htaccess', _posts]
 defaults:
   - scope:
       path: _pages

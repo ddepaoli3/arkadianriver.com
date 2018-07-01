@@ -219,50 +219,75 @@ Resources:
     # AMI Builder Event  #
     ######################
 
-    # AmiBuilderNotificationTopic:
-    #       Type: "AWS::SNS::Topic"
-    #       Properties:
-    #         Subscription:
-    #           -
-    #             Endpoint: !Ref NotificationEmailAddress
-    #             Protocol: "email"
-    #         TopicName: "AmiBuilder-Notify"
+    CodeBuildNotificationTopic:
+          Type: "AWS::SNS::Topic"
+          Properties:
+            Subscription:
+              -
+                Endpoint: !Ref NotificationEmailAddress
+                Protocol: "email"
+            TopicName: "JekyllBuild-Notify"
 
-    # AmiBuilderNotificationTopicPolicy:
-    #   Type: AWS::SNS::TopicPolicy
-    #   Properties:
-    #     PolicyDocument:
-    #       Id: AllowCloudwatchEventsToPublish
-    #       Version: '2012-10-17'
-    #       Statement:
-    #         -
-    #           Sid: My-statement-id
-    #           Effect: Allow
-    #           Principal:
-    #             Service: "events.amazonaws.com"
-    #           Action: sns:Publish
-    #           Resource: !Ref AmiBuilderNotificationTopic
-    #     Topics:
-    #       - !Ref AmiBuilderNotificationTopic
+    JekyllBuildNotificationTopicPolicy:
+      Type: AWS::SNS::TopicPolicy
+      Properties:
+        PolicyDocument:
+          Id: AllowCloudwatchEventsToPublish
+          Version: '2012-10-17'
+          Statement:
+            -
+              Sid: My-statement-id
+              Effect: Allow
+              Principal:
+                Service: "events.amazonaws.com"
+              Action: sns:Publish
+              Resource: !Ref CodeBuildNotificationTopic
+        Topics:
+          - !Ref CodeBuildNotificationTopic
 
-    # AmiBuilderCustomEvent:
-    #     Type: "AWS::Events::Rule"
-    #     Properties:
-    #       Description: "AmiBuilder-Complete"
-    #       EventPattern:
-    #         source:
-    #           - "com.ami.builder"
-    #         detail-type:
-    #           - "AmiBuilder"
-    #         detail:
-    #           AmiStatus:
-    #             - "Created"
-    #       State: "ENABLED"
-    #       Targets:
-    #         -
-    #           Id: "NewAMI-Notify"
-    #           Arn: !Ref AmiBuilderNotificationTopic
+    JekyllBuildFailedCustomEvent:
+        Type: "AWS::Events::Rule"
+        Properties:
+          Description: "Jekyll Build Failed - Complete"
+          EventPattern:
+            source:
+              - aws.codepipeline
+            detail-type:
+              - CodePipeline Pipeline Execution State Change
+            detail:
+              state:
+              - FAILED
+          State: "ENABLED"
+          Targets:
+            -
+              Arn: !Ref CodeBuildNotificationTopic
+              Id: "NotifyFailedJekyllBuildTopic"
+              InputTransformer:
+                InputTemplate: '"The Pipeline has failed. Go to https://console.aws.amazon.com/codepipeline/home?region=us-east-1#/view/" '
+                InputPathsMap:
+                  pipeline: "$.detail.pipeline"
 
+    JekyllBuildSucceededCustomEvent:
+        Type: "AWS::Events::Rule"
+        Properties:
+          Description: "Jekyll Build Succeeded - Complete"
+          EventPattern:
+            source:
+              - aws.codepipeline
+            detail-type:
+              - CodePipeline Pipeline Execution State Change
+            detail:
+              state:
+              - SUCCEEDED
+          State: "ENABLED"
+          Targets:
+            -
+              Arn: !Ref CodeBuildNotificationTopic
+              Id: "NotifyFailedJekyllBuildTopic"
+              InputTransformer:
+                InputTemplate: '"The Pipeline has succeeded! Compliments" '
+                InputPathsMap:
+                  pipeline: "$.detail.pipeline"
 
 Outputs:
 

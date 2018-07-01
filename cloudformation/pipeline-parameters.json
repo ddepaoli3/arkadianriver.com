@@ -1,0 +1,26 @@
+[
+  {
+    "ParameterKey": "CodeBuildEnvironment",
+    "ParameterValue": "aws/codebuild/ruby:2.5.1"
+  },
+  {
+    "ParameterKey": "NotificationEmailAddress",
+    "ParameterValue": "none@none.it"
+  },
+  {
+    "ParameterKey": "GitHubRepoName",
+    "ParameterValue": ""
+  },
+  {
+    "ParameterKey": "GitHubUsername",
+    "ParameterValue": ""
+  },
+  {
+    "ParameterKey": "BucketName",
+    "ParameterValue": ""
+  },
+  {
+    "ParameterKey": "GitHubToken",
+    "ParameterValue": ""
+  }
+]
